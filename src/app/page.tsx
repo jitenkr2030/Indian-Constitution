@@ -17,6 +17,10 @@ import StudentExamMode from '@/components/StudentExamMode'
 import AccessibilitySettings from '@/components/AccessibilitySettings'
 import PWAInstallPrompt from '@/components/PWAInstallPrompt'
 import { useAccessibility } from '@/contexts/AccessibilityContext'
+import RTIAssistant from '@/components/phase1/RTIAssistant'
+import LegalEmergencyAssistant from '@/components/phase1/LegalEmergencyAssistant'
+import ConsumerProtectionHub from '@/components/phase1/ConsumerProtectionHub'
+import BankingRightsNavigator from '@/components/phase1/BankingRightsNavigator'
 
 interface Article {
   id: string
@@ -554,12 +558,16 @@ export default function IndianConstitutionApp() {
 
         {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="px-6">
-          <TabsList className="grid w-full grid-cols-5 mb-6">
+          <TabsList className="grid w-full grid-cols-9 mb-6">
             <TabsTrigger value="home" data-value="home">Home</TabsTrigger>
             <TabsTrigger value="browse" data-value="browse">Browse</TabsTrigger>
             <TabsTrigger value="rights" data-value="rights">Rights</TabsTrigger>
             <TabsTrigger value="amendments" data-value="amendments">Amendments</TabsTrigger>
             <TabsTrigger value="learn" data-value="learn">Learn</TabsTrigger>
+            <TabsTrigger value="rti" data-value="rti">RTI</TabsTrigger>
+            <TabsTrigger value="emergency" data-value="emergency">Emergency</TabsTrigger>
+            <TabsTrigger value="consumer" data-value="consumer">Consumer</TabsTrigger>
+            <TabsTrigger value="banking" data-value="banking">Banking</TabsTrigger>
           </TabsList>
 
           <TabsContent value="home" className="space-y-6">
@@ -687,12 +695,28 @@ export default function IndianConstitutionApp() {
               onArticleClick={setSelectedArticleId}
             />
           </TabsContent>
+
+          <TabsContent value="rti">
+            <RTIAssistant />
+          </TabsContent>
+
+          <TabsContent value="emergency">
+            <LegalEmergencyAssistant />
+          </TabsContent>
+
+          <TabsContent value="consumer">
+            <ConsumerProtectionHub />
+          </TabsContent>
+
+          <TabsContent value="banking">
+            <BankingRightsNavigator />
+          </TabsContent>
         </Tabs>
       </main>
 
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 z-40">
-        <div className="flex justify-around">
+        <div className="grid grid-cols-3 gap-2">
           <Button 
             variant="ghost" 
             className="flex flex-col items-center gap-1 h-auto py-2 px-3"
@@ -725,17 +749,6 @@ export default function IndianConstitutionApp() {
           >
             <Shield className="h-5 w-5" />
             <span className="text-xs">Rights</span>
-          </Button>
-          <Button 
-            variant="ghost" 
-            className="flex flex-col items-center gap-1 h-auto py-2 px-3"
-            onClick={() => {
-              console.log('Bottom Learn clicked')
-              navigateToTab('learn')
-            }}
-          >
-            <GraduationCap className="h-5 w-5" />
-            <span className="text-xs">Learn</span>
           </Button>
         </div>
       </nav>
