@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import { AccessibilityProvider } from "@/contexts/AccessibilityContext";
+import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,24 +16,33 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Z.ai Code Scaffold - AI-Powered Development",
-  description: "Modern Next.js scaffold optimized for AI-powered development with Z.ai. Built with TypeScript, Tailwind CSS, and shadcn/ui.",
-  keywords: ["Z.ai", "Next.js", "TypeScript", "Tailwind CSS", "shadcn/ui", "AI development", "React"],
-  authors: [{ name: "Z.ai Team" }],
+  title: "Indian Constitution App - Know Your Rights",
+  description: "Comprehensive mobile app for Indian Constitution with AI assistant, multilingual support, and accessibility features. Empowering citizens with constitutional knowledge.",
+  keywords: ["Indian Constitution", "Fundamental Rights", "Legal Awareness", "AI Assistant", "Multilingual", "Accessibility"],
+  authors: [{ name: "Constitution App Team" }],
   icons: {
-    icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
+    icon: "/icons/icon-192x192.png",
+    apple: "/icons/icon-152x152.png",
+  },
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Constitution App",
   },
   openGraph: {
-    title: "Z.ai Code Scaffold",
-    description: "AI-powered development with modern React stack",
-    url: "https://chat.z.ai",
-    siteName: "Z.ai",
+    title: "Indian Constitution App",
+    description: "Know your constitutional rights with AI-powered assistance",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Z.ai Code Scaffold",
-    description: "AI-powered development with modern React stack",
+    title: "Indian Constitution App",
+    description: "Empowering citizens with constitutional knowledge",
+  },
+  other: {
+    "msapplication-TileColor": "#FF9933",
+    "msapplication-config": "/browserconfig.xml",
   },
 };
 
@@ -45,8 +56,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
-        {children}
-        <Toaster />
+        <AccessibilityProvider>
+          <ServiceWorkerRegister />
+          {children}
+          <Toaster />
+        </AccessibilityProvider>
       </body>
     </html>
   );

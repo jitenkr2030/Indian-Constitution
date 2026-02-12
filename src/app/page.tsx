@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Search, BookOpen, Headphones, Scale, GraduationCap, Shield, Settings, Menu, X, ChevronRight, Mic, Bell, User, MessageCircle, Volume2 } from 'lucide-react'
+import { Search, BookOpen, Headphones, Scale, GraduationCap, Shield, Settings, Menu, X, ChevronRight, Mic, Bell, User, MessageCircle, Volume2, Accessibility } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -10,6 +10,13 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import ArticleDetailModal from '@/components/ArticleDetailModal'
+import FundamentalRightsDashboard from '@/components/FundamentalRightsDashboard'
+import AmendmentsTracker from '@/components/AmendmentsTracker'
+import StudentExamMode from '@/components/StudentExamMode'
+import AccessibilitySettings from '@/components/AccessibilitySettings'
+import PWAInstallPrompt from '@/components/PWAInstallPrompt'
+import { useAccessibility } from '@/contexts/AccessibilityContext'
 
 interface Article {
   id: string
@@ -46,6 +53,9 @@ export default function IndianConstitutionApp() {
   const [aiIsTyping, setAiIsTyping] = useState(false)
   const [constitutionData, setConstitutionData] = useState<any[]>([])
   const [dataSeeded, setDataSeeded] = useState(false)
+  const [selectedArticleId, setSelectedArticleId] = useState<string | null>(null)
+  
+  const { speakText, ttsEnabled } = useAccessibility()
 
   // Check if data is seeded and load constitution data
   useEffect(() => {
@@ -295,6 +305,12 @@ export default function IndianConstitutionApp() {
               </DialogContent>
             </Dialog>
             
+            <AccessibilitySettings>
+              <Button variant="ghost" size="icon" className="relative">
+                <Accessibility className="h-5 w-5" />
+              </Button>
+            </AccessibilitySettings>
+            
             <Button variant="ghost" size="icon" className="relative">
               <Bell className="h-5 w-5" />
               <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
@@ -426,10 +442,11 @@ export default function IndianConstitutionApp() {
 
         {/* Main Tabs */}
         <Tabs defaultValue="home" className="px-6">
-          <TabsList className="grid w-full grid-cols-4 mb-6">
+          <TabsList className="grid w-full grid-cols-5 mb-6">
             <TabsTrigger value="home">Home</TabsTrigger>
             <TabsTrigger value="browse">Browse</TabsTrigger>
             <TabsTrigger value="rights">Rights</TabsTrigger>
+            <TabsTrigger value="amendments">Amendments</TabsTrigger>
             <TabsTrigger value="learn">Learn</TabsTrigger>
           </TabsList>
 
@@ -464,7 +481,25 @@ export default function IndianConstitutionApp() {
                           </h3>
                           <p className="text-sm text-gray-600">{article.desc}</p>
                         </div>
-                        <Badge variant="outline">Important</Badge>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline">Important</Badge>
+                          {ttsEnabled && (
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => speakText(`Article ${article.id}: ${article.desc}`)}
+                            >
+                              <Volume2 className="h-4 w-4" />
+                            </Button>
+                          )}
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => setSelectedArticleId(article.id)}
+                          >
+                            View
+                          </Button>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -521,70 +556,24 @@ export default function IndianConstitutionApp() {
           </TabsContent>
 
           <TabsContent value="rights">
-            <div>
-              <h2 className="text-xl font-bold mb-4">Fundamental Rights</h2>
-              <div className="grid gap-4">
-                <Card className="border-blue-200">
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold text-blue-800">Right to Equality</h3>
-                    <p className="text-sm text-gray-600">Articles 14-18</p>
-                    <p className="text-xs text-gray-500 mt-2">Equality before law and protection of laws</p>
-                  </CardContent>
-                </Card>
-                <Card className="border-green-200">
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold text-green-800">Right to Freedom</h3>
-                    <p className="text-sm text-gray-600">Articles 19-22</p>
-                    <p className="text-xs text-gray-500 mt-2">Freedom of speech, movement, and residence</p>
-                  </CardContent>
-                </Card>
-                <Card className="border-purple-200">
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold text-purple-800">Right against Exploitation</h3>
-                    <p className="text-sm text-gray-600">Articles 23-24</p>
-                    <p className="text-xs text-gray-500 mt-2">Prohibition of traffic and child labor</p>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
+            <FundamentalRightsDashboard
+              language={selectedLanguage}
+              onArticleClick={setSelectedArticleId}
+            />
+          </TabsContent>
+
+          <TabsContent value="amendments">
+            <AmendmentsTracker
+              language={selectedLanguage}
+              onArticleClick={setSelectedArticleId}
+            />
           </TabsContent>
 
           <TabsContent value="learn">
-            <div>
-              <h2 className="text-xl font-bold mb-4">Student & Exam Mode</h2>
-              <div className="grid gap-4">
-                <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-semibold">Daily Quiz</h3>
-                      <Badge>10 Questions</Badge>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-3">Test your knowledge of the Constitution</p>
-                    <Button size="sm" className="w-full">Start Quiz</Button>
-                  </CardContent>
-                </Card>
-                <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-semibold">Previous Year Questions</h3>
-                      <Badge>UPSC</Badge>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-3">Constitution questions from previous exams</p>
-                    <Button size="sm" variant="outline" className="w-full">View Questions</Button>
-                  </CardContent>
-                </Card>
-                <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-semibold">Study Notes</h3>
-                      <Badge>Important</Badge>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-3">Simplified notes for quick revision</p>
-                    <Button size="sm" variant="outline" className="w-full">View Notes</Button>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
+            <StudentExamMode
+              language={selectedLanguage}
+              onArticleClick={setSelectedArticleId}
+            />
           </TabsContent>
         </Tabs>
       </main>
@@ -610,6 +599,16 @@ export default function IndianConstitutionApp() {
           </Button>
         </div>
       </nav>
+
+      {/* Article Detail Modal */}
+      <ArticleDetailModal
+        articleId={selectedArticleId}
+        language={selectedLanguage}
+        onClose={() => setSelectedArticleId(null)}
+      />
+
+      {/* PWA Install Prompt */}
+      <PWAInstallPrompt />
     </div>
   )
 }

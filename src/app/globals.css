@@ -120,3 +120,45 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Accessibility Styles */
+.high-contrast {
+  --border: oklch(0.145 0 0);
+  --ring: oklch(0.145 0 0);
+}
+
+.high-contrast .card {
+  border-width: 2px;
+}
+
+.high-contrast button {
+  border-width: 2px;
+}
+
+.reduced-motion * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* Focus styles for better accessibility */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid oklch(0.708 0 0);
+  outline-offset: 2px;
+}
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
