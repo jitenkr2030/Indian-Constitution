@@ -1,31 +1,615 @@
 'use client'
 
-export default function Home() {
+import { useState, useEffect } from 'react'
+import { Search, BookOpen, Headphones, Scale, GraduationCap, Shield, Settings, Menu, X, ChevronRight, Mic, Bell, User, MessageCircle, Volume2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { ScrollArea } from '@/components/ui/scroll-area'
+
+interface Article {
+  id: string
+  number: string
+  title: string
+  category: string
+  importance: number
+  part: {
+    number: number
+    title: string
+  }
+}
+
+interface SearchResult {
+  type: 'article' | 'amendment' | 'emergency'
+  id: string
+  title: string
+  content?: string
+  description?: string
+  category?: string
+  number?: string
+  year?: number
+}
+
+export default function IndianConstitutionApp() {
+  const [searchQuery, setSearchQuery] = useState('')
+  const [isListening, setIsListening] = useState(false)
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([])
+  const [isSearching, setIsSearching] = useState(false)
+  const [selectedLanguage, setSelectedLanguage] = useState('en')
+  const [aiChatOpen, setAiChatOpen] = useState(false)
+  const [aiMessages, setAiMessages] = useState<{role: 'user' | 'assistant', content: string}[]>([])
+  const [aiQuestion, setAiQuestion] = useState('')
+  const [aiIsTyping, setAiIsTyping] = useState(false)
+  const [constitutionData, setConstitutionData] = useState<any[]>([])
+  const [dataSeeded, setDataSeeded] = useState(false)
+
+  // Check if data is seeded and load constitution data
+  useEffect(() => {
+    checkAndSeedData()
+    loadConstitutionData()
+  }, [])
+
+  const checkAndSeedData = async () => {
+    try {
+      const response = await fetch('/api/constitution')
+      if (response.ok) {
+        const data = await response.json()
+        if (data.data && data.data.length > 0) {
+          setDataSeeded(true)
+        }
+      }
+    } catch (error) {
+      console.error('Error checking data:', error)
+    }
+  }
+
+  const seedData = async () => {
+    try {
+      const response = await fetch('/api/seed', { method: 'POST' })
+      if (response.ok) {
+        setDataSeeded(true)
+        loadConstitutionData()
+      }
+    } catch (error) {
+      console.error('Error seeding data:', error)
+    }
+  }
+
+  const loadConstitutionData = async () => {
+    try {
+      const response = await fetch('/api/constitution')
+      if (response.ok) {
+        const data = await response.json()
+        setConstitutionData(data.data || [])
+      }
+    } catch (error) {
+      console.error('Error loading constitution data:', error)
+    }
+  }
+
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) return
+
+    setIsSearching(true)
+    try {
+      const response = await fetch(`/api/search?q=${encodeURIComponent(searchQuery)}&lang=${selectedLanguage}`)
+      if (response.ok) {
+        const data = await response.json()
+        setSearchResults(data.data.results || [])
+      }
+    } catch (error) {
+      console.error('Error searching:', error)
+    } finally {
+      setIsSearching(false)
+    }
+  }
+
+  const handleAiChat = async () => {
+    if (!aiQuestion.trim()) return
+
+    const userMessage = { role: 'user' as const, content: aiQuestion }
+    setAiMessages(prev => [...prev, userMessage])
+    setAiQuestion('')
+    setAiIsTyping(true)
+
+    try {
+      const response = await fetch('/api/ai-assistant', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          question: aiQuestion,
+          userId: 'demo-user',
+          language: selectedLanguage
+        })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setAiMessages(prev => [...prev, { 
+          role: 'assistant', 
+          content: data.data.answer 
+        }])
+      }
+    } catch (error) {
+      console.error('Error in AI chat:', error)
+      setAiMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: 'Sorry, I encountered an error. Please try again.' 
+      }])
+    } finally {
+      setAiIsTyping(false)
+    }
+  }
+
+  const features = [
+    { icon: BookOpen, title: 'Browse Articles', desc: 'Complete Constitution access', color: 'bg-blue-500' },
+    { icon: Search, title: 'Smart Search', desc: 'AI-powered search', color: 'bg-green-500' },
+    { icon: Headphones, title: 'Simplified', desc: 'Easy explanations', color: 'bg-purple-500' },
+    { icon: Scale, title: 'Case Laws', desc: 'Important judgments', color: 'bg-orange-500' },
+    { icon: Shield, title: 'Rights Guide', desc: 'Emergency help', color: 'bg-red-500' },
+    { icon: GraduationCap, title: 'Student Mode', desc: 'Exam preparation', color: 'bg-indigo-500' }
+  ]
+
+  const recentArticles = [
+    { id: '21', title: 'Right to Life', desc: 'Protection of life and personal liberty' },
+    { id: '14', title: 'Equality Before Law', desc: 'Equality before law and equal protection' },
+    { id: '19', title: 'Freedom of Speech', desc: 'Protection of certain rights regarding freedom' }
+  ]
+
+  const emergencyGuides = [
+    { title: 'Police Arrest', desc: 'Know your rights when arrested' },
+    { title: 'Search & Seizure', desc: 'Rules for search operations' },
+    { title: 'Legal Aid', desc: 'Free legal help available' }
+  ]
+
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: '100vh',
-      gap: '2rem',
-      padding: '1rem'
-    }}>
-      <div style={{
-        position: 'relative',
-        width: '6rem',
-        height: '6rem'
-      }}>
-        <img
-          src="/logo.svg"
-          alt="Z.ai Logo"
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'contain'
-          }}
-        />
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-saffron-50 via-white-to-green-50 flex flex-col">
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-200">
+        <div className="flex items-center justify-between p-4">
+          <div className="flex items-center gap-3">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="lg:hidden">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-80">
+                <nav className="flex flex-col gap-4 mt-8">
+                  <a href="#" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100">
+                    <BookOpen className="h-5 w-5 text-blue-600" />
+                    <span>Browse Constitution</span>
+                  </a>
+                  <a href="#" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100">
+                    <Search className="h-5 w-5 text-green-600" />
+                    <span>Search Articles</span>
+                  </a>
+                  <a href="#" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100">
+                    <Headphones className="h-5 w-5 text-purple-600" />
+                    <span>Simplified Guide</span>
+                  </a>
+                  <a href="#" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100">
+                    <Scale className="h-5 w-5 text-orange-600" />
+                    <span>Case Laws</span>
+                  </a>
+                  <a href="#" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100">
+                    <Shield className="h-5 w-5 text-red-600" />
+                    <span>Emergency Rights</span>
+                  </a>
+                  <a href="#" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100">
+                    <GraduationCap className="h-5 w-5 text-indigo-600" />
+                    <span>Student Mode</span>
+                  </a>
+                  <hr className="my-2" />
+                  <a href="#" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100">
+                    <User className="h-5 w-5" />
+                    <span>Profile</span>
+                  </a>
+                  <a href="#" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100">
+                    <Settings className="h-5 w-5" />
+                    <span>Settings</span>
+                  </a>
+                </nav>
+              </SheetContent>
+            </Sheet>
+            
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-green-600 rounded-full flex items-center justify-center">
+                <span className="text-white font-bold text-sm">भा</span>
+              </div>
+              <span className="font-bold text-lg bg-gradient-to-r from-orange-600 to-green-600 bg-clip-text text-transparent">
+                संविधान
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Dialog open={aiChatOpen} onOpenChange={setAiChatOpen}>
+              <DialogTrigger asChild>
+                <Button variant="ghost" size="icon" className="relative">
+                  <MessageCircle className="h-5 w-5" />
+                  <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full"></span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[500px]">
+                <DialogHeader>
+                  <DialogTitle>AI Constitution Assistant</DialogTitle>
+                </DialogHeader>
+                <div className="flex flex-col h-[400px]">
+                  <ScrollArea className="flex-1 p-4 border rounded-md mb-4">
+                    {aiMessages.length === 0 ? (
+                      <div className="text-center text-gray-500 py-8">
+                        <MessageCircle className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                        <p>Ask me anything about the Indian Constitution!</p>
+                        <p className="text-sm mt-2">Examples:</p>
+                        <ul className="text-sm text-left mt-2 space-y-1">
+                          <li>• What are my fundamental rights?</li>
+                          <li>• Can police search my phone?</li>
+                          <li>• What is Article 21?</li>
+                        </ul>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {aiMessages.map((msg, index) => (
+                          <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                            <div className={`max-w-[80%] p-3 rounded-lg ${
+                              msg.role === 'user' 
+                                ? 'bg-blue-500 text-white' 
+                                : 'bg-gray-100 text-gray-900'
+                            }`}>
+                              {msg.content}
+                            </div>
+                          </div>
+                        ))}
+                        {aiIsTyping && (
+                          <div className="flex justify-start">
+                            <div className="bg-gray-100 text-gray-900 p-3 rounded-lg">
+                              <div className="flex space-x-1">
+                                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </ScrollArea>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Ask about your rights..."
+                      value={aiQuestion}
+                      onChange={(e) => setAiQuestion(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && handleAiChat()}
+                      disabled={aiIsTyping}
+                    />
+                    <Button onClick={handleAiChat} disabled={aiIsTyping}>
+                      {aiIsTyping ? '...' : 'Send'}
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+            
+            <Button variant="ghost" size="icon" className="relative">
+              <Bell className="h-5 w-5" />
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            </Button>
+            <Button variant="ghost" size="icon">
+              <User className="h-5 w-5" />
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="flex-1 pb-20">
+        {/* Hero Section */}
+        <div className="p-6 text-center">
+          <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-orange-600 to-green-600 bg-clip-text text-transparent">
+            Indian Constitution
+          </h1>
+          <p className="text-gray-600 mb-6">Your Rights, Your Voice, Your Constitution</p>
+          
+          {/* Language Selector */}
+          <div className="flex justify-center gap-2 mb-4">
+            <Button 
+              variant={selectedLanguage === 'en' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setSelectedLanguage('en')}
+            >
+              English
+            </Button>
+            <Button 
+              variant={selectedLanguage === 'hi' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setSelectedLanguage('hi')}
+            >
+              हिंदी
+            </Button>
+            <Button 
+              variant={selectedLanguage === 'ta' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setSelectedLanguage('ta')}
+            >
+              தமிழ்
+            </Button>
+          </div>
+          
+          {/* Search Bar */}
+          <div className="relative max-w-xl mx-auto mb-6">
+            <Input
+              type="text"
+              placeholder="Search articles, rights, or ask a question..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+              className="pr-24 h-12 text-base"
+            />
+            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`h-8 w-8 ${isListening ? 'bg-red-100' : ''}`}
+                onClick={() => setIsListening(!isListening)}
+              >
+                <Mic className={`h-4 w-4 ${isListening ? 'text-red-600 animate-pulse' : ''}`} />
+              </Button>
+              <Button size="sm" className="h-8 px-3" onClick={handleSearch} disabled={isSearching}>
+                <Search className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Search Results */}
+          {searchResults.length > 0 && (
+            <div className="max-w-2xl mx-auto mb-6">
+              <h3 className="text-lg font-semibold mb-3">Search Results</h3>
+              <div className="space-y-2 max-h-60 overflow-y-auto">
+                {searchResults.map((result, index) => (
+                  <Card key={index} className="hover:shadow-md transition-shadow cursor-pointer">
+                    <CardContent className="p-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-medium text-sm">
+                            {result.number && `${result.type === 'article' ? 'Article' : result.type === 'amendment' ? 'Amendment' : ''} ${result.number}: `}
+                            {result.title}
+                          </h4>
+                          {result.description && (
+                            <p className="text-xs text-gray-600 mt-1">{result.description}</p>
+                          )}
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-gray-400" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Quick Stats */}
+          <div className="flex justify-center gap-4 mb-8">
+            <Badge variant="secondary" className="px-3 py-1">
+              448 Articles
+            </Badge>
+            <Badge variant="secondary" className="px-3 py-1">
+              25 Parts
+            </Badge>
+            <Badge variant="secondary" className="px-3 py-1">
+              12 Schedules
+            </Badge>
+            <Badge variant="secondary" className="px-3 py-1">
+              105 Amendments
+            </Badge>
+          </div>
+
+          {/* Data Seeding Notice */}
+          {!dataSeeded && (
+            <Card className="max-w-md mx-auto mb-6 border-orange-200">
+              <CardContent className="p-4">
+                <h3 className="font-semibold text-orange-800 mb-2">Initialize Sample Data</h3>
+                <p className="text-sm text-gray-600 mb-3">
+                  Click below to load sample constitution data and test the app features.
+                </p>
+                <Button onClick={seedData} className="w-full">
+                  Load Sample Data
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        {/* Main Tabs */}
+        <Tabs defaultValue="home" className="px-6">
+          <TabsList className="grid w-full grid-cols-4 mb-6">
+            <TabsTrigger value="home">Home</TabsTrigger>
+            <TabsTrigger value="browse">Browse</TabsTrigger>
+            <TabsTrigger value="rights">Rights</TabsTrigger>
+            <TabsTrigger value="learn">Learn</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="home" className="space-y-6">
+            {/* Feature Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {features.map((feature, index) => (
+                <Card key={index} className="hover:shadow-lg transition-shadow cursor-pointer">
+                  <CardContent className="p-4 text-center">
+                    <div className={`w-12 h-12 ${feature.color} rounded-full flex items-center justify-center mx-auto mb-3`}>
+                      <feature.icon className="h-6 w-6 text-white" />
+                    </div>
+                    <h3 className="font-semibold text-sm mb-1">{feature.title}</h3>
+                    <p className="text-xs text-gray-600">{feature.desc}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Recent Articles */}
+            <div>
+              <h2 className="text-xl font-bold mb-4">Popular Articles</h2>
+              <div className="space-y-3">
+                {recentArticles.map((article) => (
+                  <Card key={article.id} className="hover:shadow-md transition-shadow cursor-pointer">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="font-semibold flex items-center gap-2">
+                            Article {article.id}
+                            <ChevronRight className="h-4 w-4 text-gray-400" />
+                          </h3>
+                          <p className="text-sm text-gray-600">{article.desc}</p>
+                        </div>
+                        <Badge variant="outline">Important</Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+
+            {/* Emergency Guides */}
+            <div>
+              <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                <Shield className="h-5 w-5 text-red-600" />
+                Emergency Rights Guide
+              </h2>
+              <div className="grid gap-3">
+                {emergencyGuides.map((guide, index) => (
+                  <Card key={index} className="border-red-200 hover:shadow-md transition-shadow cursor-pointer">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="font-semibold">{guide.title}</h3>
+                          <p className="text-sm text-gray-600">{guide.desc}</p>
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-gray-400" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="browse">
+            <div>
+              <h2 className="text-xl font-bold mb-4">Browse Constitution</h2>
+              <div className="space-y-3">
+                {constitutionData.length > 0 ? (
+                  constitutionData.map((part: any) => (
+                    <Card key={part.id} className="hover:shadow-md transition-shadow cursor-pointer">
+                      <CardContent className="p-4">
+                        <h3 className="font-semibold">Part {part.number} - {part.title}</h3>
+                        <p className="text-sm text-gray-600">{part.description}</p>
+                        <p className="text-xs text-gray-500 mt-2">{part.articles?.length || 0} Articles</p>
+                      </CardContent>
+                    </Card>
+                  ))
+                ) : (
+                  <div className="text-center py-8">
+                    <BookOpen className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                    <p className="text-gray-500">No data available. Please load sample data first.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="rights">
+            <div>
+              <h2 className="text-xl font-bold mb-4">Fundamental Rights</h2>
+              <div className="grid gap-4">
+                <Card className="border-blue-200">
+                  <CardContent className="p-4">
+                    <h3 className="font-semibold text-blue-800">Right to Equality</h3>
+                    <p className="text-sm text-gray-600">Articles 14-18</p>
+                    <p className="text-xs text-gray-500 mt-2">Equality before law and protection of laws</p>
+                  </CardContent>
+                </Card>
+                <Card className="border-green-200">
+                  <CardContent className="p-4">
+                    <h3 className="font-semibold text-green-800">Right to Freedom</h3>
+                    <p className="text-sm text-gray-600">Articles 19-22</p>
+                    <p className="text-xs text-gray-500 mt-2">Freedom of speech, movement, and residence</p>
+                  </CardContent>
+                </Card>
+                <Card className="border-purple-200">
+                  <CardContent className="p-4">
+                    <h3 className="font-semibold text-purple-800">Right against Exploitation</h3>
+                    <p className="text-sm text-gray-600">Articles 23-24</p>
+                    <p className="text-xs text-gray-500 mt-2">Prohibition of traffic and child labor</p>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="learn">
+            <div>
+              <h2 className="text-xl font-bold mb-4">Student & Exam Mode</h2>
+              <div className="grid gap-4">
+                <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-semibold">Daily Quiz</h3>
+                      <Badge>10 Questions</Badge>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-3">Test your knowledge of the Constitution</p>
+                    <Button size="sm" className="w-full">Start Quiz</Button>
+                  </CardContent>
+                </Card>
+                <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-semibold">Previous Year Questions</h3>
+                      <Badge>UPSC</Badge>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-3">Constitution questions from previous exams</p>
+                    <Button size="sm" variant="outline" className="w-full">View Questions</Button>
+                  </CardContent>
+                </Card>
+                <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-semibold">Study Notes</h3>
+                      <Badge>Important</Badge>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-3">Simplified notes for quick revision</p>
+                    <Button size="sm" variant="outline" className="w-full">View Notes</Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </main>
+
+      {/* Bottom Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 z-40">
+        <div className="flex justify-around">
+          <Button variant="ghost" className="flex flex-col items-center gap-1 h-auto py-2 px-3">
+            <BookOpen className="h-5 w-5" />
+            <span className="text-xs">Browse</span>
+          </Button>
+          <Button variant="ghost" className="flex flex-col items-center gap-1 h-auto py-2 px-3">
+            <Search className="h-5 w-5" />
+            <span className="text-xs">Search</span>
+          </Button>
+          <Button variant="ghost" className="flex flex-col items-center gap-1 h-auto py-2 px-3">
+            <Shield className="h-5 w-5" />
+            <span className="text-xs">Rights</span>
+          </Button>
+          <Button variant="ghost" className="flex flex-col items-center gap-1 h-auto py-2 px-3">
+            <GraduationCap className="h-5 w-5" />
+            <span className="text-xs">Learn</span>
+          </Button>
+        </div>
+      </nav>
     </div>
   )
 }

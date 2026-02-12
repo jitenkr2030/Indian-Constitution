@@ -1,8 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// Indian Constitution App Database Schema
+// Supports multilingual content, amendments, and user interactions
 
 generator client {
   provider = "prisma-client-js"
@@ -13,20 +10,259 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// User Management
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String?
+  preferredLang String   @default("en") // en, hi, ta, te, bn, mr, gu, kn, ml, pa, as
+  role          String   @default("citizen") // citizen, student, teacher, lawyer, admin
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // User preferences and activity
+  bookmarks      Bookmark[]
+  highlights     Highlight[]
+  searchHistory  SearchHistory[]
+  quizAttempts   QuizAttempt[]
+  aiQueries      AIQuery[]
+  notifications  Notification[]
 }
 
-model Post {
-  id        String   @id @default(cuid())
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  authorId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+// Constitution Structure
+model Part {
+  id          String   @id @default(cuid())
+  number      Int      // Part I, Part II, etc.
+  titleEn     String   // English title
+  titleHi     String?  // Hindi title
+  titleTa     String?  // Tamil title
+  description String?
+  order       Int
+  
+  articles    Article[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Article {
+  id          String   @id @default(cuid())
+  number      String   // "21", "21A", etc.
+  partId      String
+  titleEn     String
+  titleHi     String?
+  titleTa     String?
+  contentEn   String   // Full English text
+  contentHi   String?
+  contentTa   String?
+  category    String   // fundamental_right, directive_principle, etc.
+  importance  Int      @default(0) // 1-5 rating for importance
+  
+  // Relationships
+  part                Part @relation(fields: [partId], references: [id])
+  simplifiedExps      SimplifiedExplanation[]
+  bookmarks           Bookmark[]
+  highlights          Highlight[]
+  relatedCases        CaseLaw[]
+  amendments          Amendment[]
+  mcqs                MCQ[]
+  
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model SimplifiedExplanation {
+  id          String   @id @default(cuid())
+  articleId   String
+  language    String   // en, hi, ta, etc.
+  title       String   // "What this means for you"
+  content     String   // Simple explanation
+  examples    String?  // Real-life examples
+  dos         String?  // What you can do
+  donts       String?  // What you shouldn't do
+  
+  article     Article  @relation(fields: [articleId], references: [id])
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Schedule {
+  id          String   @id @default(cuid())
+  number      Int      // Schedule 1, Schedule 2, etc.
+  titleEn     String
+  titleHi     String?
+  titleTa     String?
+  contentEn   String
+  contentHi   String?
+  contentTa   String?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Amendment {
+  id          String   @id @default(cuid())
+  number      Int      // 1st, 2nd, 3rd Amendment
+  year        Int
+  titleEn     String
+  titleHi     String?
+  titleTa     String?
+  description String   // What changed and why
+  actName     String?  // Constitutional Amendment Act
+  
+  // Relationships
+  articles    Article[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Case Laws and Judgments
+model CaseLaw {
+  id              String   @id @default(cuid())
+  title           String   // Case name
+  citation        String?  // Case citation
+  court           String   // Supreme Court, High Court
+  year            Int
+  summaryEn       String   // Simple summary
+  summaryHi       String?
+  summaryTa       String?
+  judgmentUrl     String?  // PDF link
+  landmark        Boolean  @default(false)
+  
+  // Relationships
+  articles        Article[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// Educational Content
+model MCQ {
+  id          String   @id @default(cuid())
+  articleId   String?
+  question    String
+  optionA     String
+  optionB     String
+  optionC     String
+  optionD     String
+  correctAnswer String // A, B, C, or D
+  explanation String
+  difficulty  String   // easy, medium, hard
+  category    String   // UPSC, Judiciary, etc.
+  
+  article     Article? @relation(fields: [articleId], references: [id])
+  attempts    QuizAttempt[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model QuizAttempt {
+  id          String   @id @default(cuid())
+  userId      String
+  score       Int
+  total       Int
+  timeSpent   Int      // seconds
+  category    String
+  mcqId       String?
+  
+  user        User     @relation(fields: [userId], references: [id])
+  mcq         MCQ?     @relation(fields: [mcqId], references: [id])
+  
+  createdAt   DateTime @default(now())
+}
+
+// User Interactions
+model Bookmark {
+  id          String   @id @default(cuid())
+  userId      String
+  articleId   String
+  
+  user        User     @relation(fields: [userId], references: [id])
+  article     Article  @relation(fields: [articleId], references: [id])
+  
+  createdAt   DateTime @default(now())
+  
+  @@unique([userId, articleId])
+}
+
+model Highlight {
+  id          String   @id @default(cuid())
+  userId      String
+  articleId   String
+  text        String   // Highlighted text
+  color       String   @default("yellow") // yellow, green, blue, etc.
+  note        String?  // Optional note
+  
+  user        User     @relation(fields: [userId], references: [id])
+  article     Article  @relation(fields: [articleId], references: [id])
+  
+  createdAt   DateTime @default(now())
+}
+
+model SearchHistory {
+  id          String   @id @default(cuid())
+  userId      String
+  query       String
+  type        String   // article, keyword, voice
+  results     Int      // Number of results found
+  
+  user        User     @relation(fields: [userId], references: [id])
+  
+  createdAt   DateTime @default(now())
+}
+
+// AI Assistant
+model AIQuery {
+  id          String   @id @default(cuid())
+  userId      String
+  question    String
+  answer      String
+  context     String?  // Related articles or context
+  rating      Int?     // User feedback 1-5
+  
+  user        User     @relation(fields: [userId], references: [id])
+  
+  createdAt   DateTime @default(now())
+}
+
+// Emergency Rights Guide
+model EmergencyGuide {
+  id          String   @id @default(cuid())
+  title       String   // "Police Arrest", "Search & Seizure"
+  category    String   // arrest, search, detention, protest
+  contentEn   String   // Step-by-step guidance
+  contentHi   String?
+  contentTa   String?
+  helpline    String?  // Phone numbers
+  legalAid    String?  // Legal aid information
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Notifications
+model Notification {
+  id          String   @id @default(cuid())
+  userId      String
+  title       String
+  message     String
+  type        String   // amendment, judgment, news
+  read        Boolean  @default(false)
+  
+  user        User     @relation(fields: [userId], references: [id])
+  
+  createdAt   DateTime @default(now())
+}
+
+// App Settings
+model AppSettings {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

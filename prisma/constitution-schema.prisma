@@ -1,0 +1,375 @@
+// Indian Constitution App Database Schema
+// Comprehensive schema for all constitution data and features
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Core Constitution Models
+model Part {
+  id          String @id @default(cuid())
+  number      Int
+  title       String
+  description String?
+  order       Int
+  
+  articles    Article[]
+  
+  @@map("parts")
+}
+
+model Article {
+  id              String @id @default(cuid())
+  number          Int
+  title           String
+  content         String
+  partId          String
+  categoryId      String?
+  order           Int
+  
+  part            Part @relation(fields: [partId], references: [id])
+  category        ArticleCategory? @relation(fields: [categoryId], references: [id])
+  
+  translations    ArticleTranslation[]
+  explanations    ArticleExplanation[]
+  amendments      ArticleAmendment[]
+  caseLaws        CaseLawArticle[]
+  searchIndex     ArticleSearchIndex[]
+  
+  @@map("articles")
+}
+
+model ArticleCategory {
+  id          String @id @default(cuid())
+  name        String
+  description String?
+  icon        String?
+  
+  articles    Article[]
+  
+  @@map("article_categories")
+}
+
+model Schedule {
+  id          String @id @default(cuid())
+  number      Int
+  title       String
+  content     String
+  description String?
+  
+  translations ScheduleTranslation[]
+  
+  @@map("schedules")
+}
+
+model Amendment {
+  id              String @id @default(cuid())
+  number          Int
+  year            Int
+  title           String
+  description     String
+  enactmentDate   DateTime
+  effectiveDate   DateTime?
+  
+  articles        ArticleAmendment[]
+  
+  @@map("amendments")
+}
+
+model ArticleAmendment {
+  id          String @id @default(cuid())
+  articleId   String
+  amendmentId String
+  oldText     String?
+  newText     String?
+  changeType  String // ADDED, MODIFIED, REMOVED
+  
+  article     Article @relation(fields: [articleId], references: [id])
+  amendment   Amendment @relation(fields: [amendmentId], references: [id])
+  
+  @@map("article_amendments")
+}
+
+// Multilingual Support
+model ArticleTranslation {
+  id          String @id @default(cuid())
+  articleId   String
+  language    String // en, hi, bn, te, ta, mr, gu, kn, ml, pa, ur
+  title       String
+  content     String
+  
+  article     Article @relation(fields: [articleId], references: [id])
+  
+  @@unique([articleId, language])
+  @@map("article_translations")
+}
+
+model ScheduleTranslation {
+  id          String @id @default(cuid())
+  scheduleId  String
+  language    String
+  title       String
+  content     String
+  
+  schedule    Schedule @relation(fields: [scheduleId], references: [id])
+  
+  @@unique([scheduleId, language])
+  @@map("schedule_translations")
+}
+
+// Simplified Explanations
+model ArticleExplanation {
+  id          String @id @default(cuid())
+  articleId   String
+  language    String
+  level       String // SIMPLE, DETAILED, STUDENT
+  title       String
+  content     String
+  examples    String?
+  
+  article     Article @relation(fields: [articleId], references: [id])
+  
+  @@unique([articleId, language, level])
+  @@map("article_explanations")
+}
+
+// Case Laws and Judgments
+model CaseLaw {
+  id              String @id @default(cuid())
+  title           String
+  citation        String
+  court           String
+  judgmentDate    DateTime
+  summary         String
+  fullText        String?
+  landmark        Boolean @default(false)
+  
+  articles        CaseLawArticle[]
+  
+  @@map("case_laws")
+}
+
+model CaseLawArticle {
+  id          String @id @default(cuid())
+  caseLawId   String
+  articleId   String
+  relevance   String // DIRECTLY_RELATED, INDIRECTLY_RELATED, REFERENCED
+  context     String?
+  
+  caseLaw     CaseLaw @relation(fields: [caseLawId], references: [id])
+  article     Article @relation(fields: [articleId], references: [id])
+  
+  @@map("case_law_articles")
+}
+
+// User and Progress Tracking
+model User {
+  id                String @id @default(cuid())
+  email             String @unique
+  name              String?
+  preferredLanguage String @default("en")
+  role              String // CITIZEN, STUDENT, LAWYER, RESEARCHER
+  
+  progress          UserProgress[]
+  quizAttempts      QuizAttempt[]
+  bookmarks         Bookmark[]
+  searchHistory     SearchHistory[]
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@map("users")
+}
+
+model UserProgress {
+  id          String @id @default(cuid())
+  userId      String
+  articleId   String
+  status      String // NOT_STARTED, READING, COMPLETED
+  readingTime Int? // in seconds
+  lastReadAt  DateTime?
+  
+  user        User @relation(fields: [userId], references: [id])
+  
+  @@unique([userId, articleId])
+  @@map("user_progress")
+}
+
+// Quizzes and Exams
+model Quiz {
+  id          String @id @default(cuid())
+  title       String
+  description String?
+  category    String // FUNDAMENTAL_RIGHTS, DIRECTIVE_PRINCIPLES, EMERGENCY_PROVISIONS, etc.
+  difficulty  String // EASY, MEDIUM, HARD
+  timeLimit   Int? // in minutes
+  
+  questions   QuizQuestion[]
+  attempts    QuizAttempt[]
+  
+  @@map("quizzes")
+}
+
+model QuizQuestion {
+  id          String @id @default(cuid())
+  quizId      String
+  question    String
+  options     String // JSON array of options
+  correctAnswer Int
+  explanation  String?
+  articleId   String? // Related article for reference
+  
+  quiz        Quiz @relation(fields: [quizId], references: [id])
+  
+  @@map("quiz_questions")
+}
+
+model QuizAttempt {
+  id          String @id @default(cuid())
+  userId      String
+  quizId      String
+  score       Int
+  totalQuestions Int
+  answers     String // JSON object of user answers
+  timeSpent   Int // in seconds
+  completedAt DateTime @default(now())
+  
+  user        User @relation(fields: [userId], references: [id])
+  quiz        Quiz @relation(fields: [quizId], references: [id])
+  
+  @@map("quiz_attempts")
+}
+
+// Search and Bookmarks
+model ArticleSearchIndex {
+  id          String @id @default(cuid())
+  articleId   String
+  language    String
+  keywords    String
+  content     String // Full text for search
+  articleNumber Int
+  
+  article     Article @relation(fields: [articleId], references: [id])
+  
+  @@map("article_search_index")
+}
+
+model Bookmark {
+  id          String @id @default(cuid())
+  userId      String
+  articleId   String?
+  scheduleId  String?
+  caseLawId   String?
+  note        String?
+  
+  user        User @relation(fields: [userId], references: [id])
+  
+  createdAt   DateTime @default(now())
+  
+  @@map("bookmarks")
+}
+
+model SearchHistory {
+  id          String @id @default(cuid())
+  userId      String
+  query       String
+  filters     String? // JSON object of search filters
+  resultsCount Int
+  
+  user        User @relation(fields: [userId], references: [id])
+  
+  createdAt   DateTime @default(now())
+  
+  @@map("search_history")
+}
+
+// Emergency Rights and Helplines
+model EmergencyRight {
+  id          String @id @default(cuid())
+  title       String
+  description String
+  category    String // ARREST, SEARCH, LEGAL_AID, etc.
+  steps       String // JSON array of steps
+  articleIds  String // JSON array of related article IDs
+  
+  translations EmergencyRightTranslation[]
+  helplines   Helpline[]
+  
+  @@map("emergency_rights")
+}
+
+model EmergencyRightTranslation {
+  id              String @id @default(cuid())
+  emergencyRightId String
+  language        String
+  title           String
+  description     String
+  steps           String // JSON array of translated steps
+  
+  @@map("emergency_right_translations")
+}
+
+model Helpline {
+  id              String @id @default(cuid())
+  emergencyRightId String
+  name            String
+  number          String
+  email           String?
+  description     String?
+  available24x7   Boolean @default(false)
+  
+  @@map("helplines")
+}
+
+// Fundamental Rights Dashboard
+model FundamentalRight {
+  id          String @id @default(cuid())
+  title       String
+  description String
+  category    String // RIGHT_TO_EQUALITY, RIGHT_TO_FREEDOM, etc.
+  articleIds  String // JSON array of related article IDs
+  
+  translations FundamentalRightTranslation[]
+  violations   RightViolation[]
+  
+  @@map("fundamental_rights")
+}
+
+model FundamentalRightTranslation {
+  id                  String @id @default(cuid())
+  fundamentalRightId  String
+  language            String
+  title               String
+  description         String
+  
+  @@map("fundamental_right_translations")
+}
+
+model RightViolation {
+  id                  String @id @default(cuid())
+  fundamentalRightId  String
+  title               String
+  description         String
+  example             String
+  remedy              String
+  legalProvisions     String // Related legal provisions and remedies
+  
+  fundamentalRight    FundamentalRight @relation(fields: [fundamentalRightId], references: [id])
+  
+  @@map("right_violations")
+}
+
+// App Settings and Configuration
+model AppSettings {
+  id          String @id @default(cuid())
+  key         String @unique
+  value       String
+  description String?
+  
+  @@map("app_settings")
+}
