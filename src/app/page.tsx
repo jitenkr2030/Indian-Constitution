@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Search, BookOpen, Headphones, Scale, GraduationCap, Shield, Settings, Menu, X, ChevronRight, Mic, Bell, User, MessageCircle, Volume2, Accessibility } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -56,13 +56,25 @@ export default function IndianConstitutionApp() {
   const [selectedArticleId, setSelectedArticleId] = useState<string | null>(null)
   const [sideMenuOpen, setSideMenuOpen] = useState(false)
   const [activeTab, setActiveTab] = useState('home')
+  const tabsRef = useRef<HTMLDivElement>(null)
   
   const { speakText, ttsEnabled } = useAccessibility()
 
   // Navigation functions
   const navigateToTab = (tab: string) => {
+    console.log('Navigating to tab:', tab) // Debug log
     setActiveTab(tab)
     setSideMenuOpen(false)
+    
+    // Focus search input if navigating to home
+    if (tab === 'home') {
+      setTimeout(() => {
+        const searchInput = document.querySelector('input[placeholder*="Search"]') as HTMLElement
+        if (searchInput) {
+          searchInput.focus()
+        }
+      }, 200)
+    }
   }
 
   const handleSearchFocus = () => {
@@ -238,44 +250,65 @@ export default function IndianConstitutionApp() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-80">
-                <nav className="flex flex-col gap-4 mt-8">
+                <SheetHeader>
+                  <SheetTitle>Menu</SheetTitle>
+                </SheetHeader>
+                <nav className="flex flex-col gap-4">
                   <button 
-                    onClick={() => navigateToTab('browse')}
+                    onClick={() => {
+                      console.log('Browse Constitution clicked')
+                      navigateToTab('browse')
+                    }}
                     className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 text-left w-full"
                   >
                     <BookOpen className="h-5 w-5 text-blue-600" />
                     <span>Browse Constitution</span>
                   </button>
                   <button 
-                    onClick={handleSearchFocus}
+                    onClick={() => {
+                      console.log('Search Articles clicked')
+                      handleSearchFocus()
+                    }}
                     className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 text-left w-full"
                   >
                     <Search className="h-5 w-5 text-green-600" />
                     <span>Search Articles</span>
                   </button>
                   <button 
-                    onClick={() => navigateToTab('rights')}
+                    onClick={() => {
+                      console.log('Simplified Guide clicked')
+                      navigateToTab('rights')
+                    }}
                     className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 text-left w-full"
                   >
                     <Headphones className="h-5 w-5 text-purple-600" />
                     <span>Simplified Guide</span>
                   </button>
                   <button 
-                    onClick={() => navigateToTab('amendments')}
+                    onClick={() => {
+                      console.log('Case Laws clicked')
+                      navigateToTab('amendments')
+                    }}
                     className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 text-left w-full"
                   >
                     <Scale className="h-5 w-5 text-orange-600" />
                     <span>Case Laws</span>
                   </button>
                   <button 
-                    onClick={() => navigateToTab('rights')}
+                    onClick={() => {
+                      console.log('Emergency Rights clicked')
+                      navigateToTab('rights')
+                    }}
                     className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 text-left w-full"
                   >
                     <Shield className="h-5 w-5 text-red-600" />
                     <span>Emergency Rights</span>
                   </button>
                   <button 
-                    onClick={() => navigateToTab('learn')}
+                    onClick={() => {
+                      console.log('Student Mode clicked')
+                      navigateToTab('learn')
+                    }}
                     className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 text-left w-full"
                   >
                     <GraduationCap className="h-5 w-5 text-indigo-600" />
@@ -283,14 +316,20 @@ export default function IndianConstitutionApp() {
                   </button>
                   <hr className="my-2" />
                   <button 
-                    onClick={handleProfile}
+                    onClick={() => {
+                      console.log('Profile clicked')
+                      handleProfile()
+                    }}
                     className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 text-left w-full"
                   >
                     <User className="h-5 w-5" />
                     <span>Profile</span>
                   </button>
                   <button 
-                    onClick={handleSettings}
+                    onClick={() => {
+                      console.log('Settings clicked')
+                      handleSettings()
+                    }}
                     className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 text-left w-full"
                   >
                     <Settings className="h-5 w-5" />
@@ -657,7 +696,10 @@ export default function IndianConstitutionApp() {
           <Button 
             variant="ghost" 
             className="flex flex-col items-center gap-1 h-auto py-2 px-3"
-            onClick={() => navigateToTab('browse')}
+            onClick={() => {
+              console.log('Bottom Browse clicked')
+              navigateToTab('browse')
+            }}
           >
             <BookOpen className="h-5 w-5" />
             <span className="text-xs">Browse</span>
@@ -665,7 +707,10 @@ export default function IndianConstitutionApp() {
           <Button 
             variant="ghost" 
             className="flex flex-col items-center gap-1 h-auto py-2 px-3"
-            onClick={handleSearchFocus}
+            onClick={() => {
+              console.log('Bottom Search clicked')
+              handleSearchFocus()
+            }}
           >
             <Search className="h-5 w-5" />
             <span className="text-xs">Search</span>
@@ -673,7 +718,10 @@ export default function IndianConstitutionApp() {
           <Button 
             variant="ghost" 
             className="flex flex-col items-center gap-1 h-auto py-2 px-3"
-            onClick={() => navigateToTab('rights')}
+            onClick={() => {
+              console.log('Bottom Rights clicked')
+              navigateToTab('rights')
+            }}
           >
             <Shield className="h-5 w-5" />
             <span className="text-xs">Rights</span>
@@ -681,7 +729,10 @@ export default function IndianConstitutionApp() {
           <Button 
             variant="ghost" 
             className="flex flex-col items-center gap-1 h-auto py-2 px-3"
-            onClick={() => navigateToTab('learn')}
+            onClick={() => {
+              console.log('Bottom Learn clicked')
+              navigateToTab('learn')
+            }}
           >
             <GraduationCap className="h-5 w-5" />
             <span className="text-xs">Learn</span>
