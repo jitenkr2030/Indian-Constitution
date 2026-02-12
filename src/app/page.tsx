@@ -54,14 +54,63 @@ export default function IndianConstitutionApp() {
   const [constitutionData, setConstitutionData] = useState<any[]>([])
   const [dataSeeded, setDataSeeded] = useState(false)
   const [selectedArticleId, setSelectedArticleId] = useState<string | null>(null)
+  const [sideMenuOpen, setSideMenuOpen] = useState(false)
+  const [activeTab, setActiveTab] = useState('home')
   
   const { speakText, ttsEnabled } = useAccessibility()
+
+  // Navigation functions
+  const navigateToTab = (tab: string) => {
+    setActiveTab(tab)
+    setSideMenuOpen(false)
+  }
+
+  const handleSearchFocus = () => {
+    navigateToTab('home')
+    // Focus will happen automatically when tab changes
+  }
+
+  const handleAIChat = () => {
+    setAiChatOpen(true)
+    setSideMenuOpen(false)
+  }
+
+  const handleProfile = () => {
+    // For now, show accessibility settings as profile
+    const accessibilityButton = document.querySelector('[aria-label="Accessibility settings"]') as HTMLElement
+    if (accessibilityButton) {
+      accessibilityButton.click()
+    }
+    setSideMenuOpen(false)
+  }
+
+  const handleSettings = () => {
+    // Open accessibility settings
+    const accessibilityButton = document.querySelector('[aria-label="Accessibility settings"]') as HTMLElement
+    if (accessibilityButton) {
+      accessibilityButton.click()
+    }
+    setSideMenuOpen(false)
+  }
 
   // Check if data is seeded and load constitution data
   useEffect(() => {
     checkAndSeedData()
     loadConstitutionData()
   }, [])
+
+  // Focus search input when home tab is active
+  useEffect(() => {
+    if (activeTab === 'home') {
+      const timer = setTimeout(() => {
+        const searchInput = document.querySelector('input[placeholder*="Search"]') as HTMLElement
+        if (searchInput) {
+          searchInput.focus()
+        }
+      }, 100)
+      return () => clearTimeout(timer)
+    }
+  }, [activeTab])
 
   const checkAndSeedData = async () => {
     try {
@@ -190,39 +239,63 @@ export default function IndianConstitutionApp() {
               </SheetTrigger>
               <SheetContent side="left" className="w-80">
                 <nav className="flex flex-col gap-4 mt-8">
-                  <a href="#" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100">
+                  <button 
+                    onClick={() => navigateToTab('browse')}
+                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 text-left w-full"
+                  >
                     <BookOpen className="h-5 w-5 text-blue-600" />
                     <span>Browse Constitution</span>
-                  </a>
-                  <a href="#" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100">
+                  </button>
+                  <button 
+                    onClick={handleSearchFocus}
+                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 text-left w-full"
+                  >
                     <Search className="h-5 w-5 text-green-600" />
                     <span>Search Articles</span>
-                  </a>
-                  <a href="#" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100">
+                  </button>
+                  <button 
+                    onClick={() => navigateToTab('rights')}
+                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 text-left w-full"
+                  >
                     <Headphones className="h-5 w-5 text-purple-600" />
                     <span>Simplified Guide</span>
-                  </a>
-                  <a href="#" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100">
+                  </button>
+                  <button 
+                    onClick={() => navigateToTab('amendments')}
+                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 text-left w-full"
+                  >
                     <Scale className="h-5 w-5 text-orange-600" />
                     <span>Case Laws</span>
-                  </a>
-                  <a href="#" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100">
+                  </button>
+                  <button 
+                    onClick={() => navigateToTab('rights')}
+                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 text-left w-full"
+                  >
                     <Shield className="h-5 w-5 text-red-600" />
                     <span>Emergency Rights</span>
-                  </a>
-                  <a href="#" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100">
+                  </button>
+                  <button 
+                    onClick={() => navigateToTab('learn')}
+                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 text-left w-full"
+                  >
                     <GraduationCap className="h-5 w-5 text-indigo-600" />
                     <span>Student Mode</span>
-                  </a>
+                  </button>
                   <hr className="my-2" />
-                  <a href="#" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100">
+                  <button 
+                    onClick={handleProfile}
+                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 text-left w-full"
+                  >
                     <User className="h-5 w-5" />
                     <span>Profile</span>
-                  </a>
-                  <a href="#" className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100">
+                  </button>
+                  <button 
+                    onClick={handleSettings}
+                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 text-left w-full"
+                  >
                     <Settings className="h-5 w-5" />
                     <span>Settings</span>
-                  </a>
+                  </button>
                 </nav>
               </SheetContent>
             </Sheet>
@@ -441,13 +514,13 @@ export default function IndianConstitutionApp() {
         </div>
 
         {/* Main Tabs */}
-        <Tabs defaultValue="home" className="px-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="px-6">
           <TabsList className="grid w-full grid-cols-5 mb-6">
-            <TabsTrigger value="home">Home</TabsTrigger>
-            <TabsTrigger value="browse">Browse</TabsTrigger>
-            <TabsTrigger value="rights">Rights</TabsTrigger>
-            <TabsTrigger value="amendments">Amendments</TabsTrigger>
-            <TabsTrigger value="learn">Learn</TabsTrigger>
+            <TabsTrigger value="home" data-value="home">Home</TabsTrigger>
+            <TabsTrigger value="browse" data-value="browse">Browse</TabsTrigger>
+            <TabsTrigger value="rights" data-value="rights">Rights</TabsTrigger>
+            <TabsTrigger value="amendments" data-value="amendments">Amendments</TabsTrigger>
+            <TabsTrigger value="learn" data-value="learn">Learn</TabsTrigger>
           </TabsList>
 
           <TabsContent value="home" className="space-y-6">
@@ -581,19 +654,35 @@ export default function IndianConstitutionApp() {
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 z-40">
         <div className="flex justify-around">
-          <Button variant="ghost" className="flex flex-col items-center gap-1 h-auto py-2 px-3">
+          <Button 
+            variant="ghost" 
+            className="flex flex-col items-center gap-1 h-auto py-2 px-3"
+            onClick={() => navigateToTab('browse')}
+          >
             <BookOpen className="h-5 w-5" />
             <span className="text-xs">Browse</span>
           </Button>
-          <Button variant="ghost" className="flex flex-col items-center gap-1 h-auto py-2 px-3">
+          <Button 
+            variant="ghost" 
+            className="flex flex-col items-center gap-1 h-auto py-2 px-3"
+            onClick={handleSearchFocus}
+          >
             <Search className="h-5 w-5" />
             <span className="text-xs">Search</span>
           </Button>
-          <Button variant="ghost" className="flex flex-col items-center gap-1 h-auto py-2 px-3">
+          <Button 
+            variant="ghost" 
+            className="flex flex-col items-center gap-1 h-auto py-2 px-3"
+            onClick={() => navigateToTab('rights')}
+          >
             <Shield className="h-5 w-5" />
             <span className="text-xs">Rights</span>
           </Button>
-          <Button variant="ghost" className="flex flex-col items-center gap-1 h-auto py-2 px-3">
+          <Button 
+            variant="ghost" 
+            className="flex flex-col items-center gap-1 h-auto py-2 px-3"
+            onClick={() => navigateToTab('learn')}
+          >
             <GraduationCap className="h-5 w-5" />
             <span className="text-xs">Learn</span>
           </Button>
