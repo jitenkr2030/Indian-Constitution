@@ -21,6 +21,10 @@ import RTIAssistant from '@/components/phase1/RTIAssistant'
 import LegalEmergencyAssistant from '@/components/phase1/LegalEmergencyAssistant'
 import ConsumerProtectionHub from '@/components/phase1/ConsumerProtectionHub'
 import BankingRightsNavigator from '@/components/phase1/BankingRightsNavigator'
+import GovernmentServicesIntegration from '@/components/phase2/GovernmentServicesIntegration'
+import WomensRightsEmpowerment from '@/components/phase2/WomensRightsEmpowerment'
+import EnvironmentalProtectionCenter from '@/components/phase2/EnvironmentalProtectionCenter'
+import DigitalRightsHub from '@/components/phase2/DigitalRightsHub'
 
 interface Article {
   id: string
@@ -558,7 +562,7 @@ export default function IndianConstitutionApp() {
 
         {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="px-6">
-          <TabsList className="grid w-full grid-cols-9 mb-6">
+          <TabsList className="grid w-full grid-cols-13 mb-6">
             <TabsTrigger value="home" data-value="home">Home</TabsTrigger>
             <TabsTrigger value="browse" data-value="browse">Browse</TabsTrigger>
             <TabsTrigger value="rights" data-value="rights">Rights</TabsTrigger>
@@ -568,6 +572,10 @@ export default function IndianConstitutionApp() {
             <TabsTrigger value="emergency" data-value="emergency">Emergency</TabsTrigger>
             <TabsTrigger value="consumer" data-value="consumer">Consumer</TabsTrigger>
             <TabsTrigger value="banking" data-value="banking">Banking</TabsTrigger>
+            <TabsTrigger value="gov-services" data-value="gov-services">Gov Services</TabsTrigger>
+            <TabsTrigger value="womens-rights" data-value="womens-rights">Women's Rights</TabsTrigger>
+            <TabsTrigger value="environment" data-value="environment">Environment</TabsTrigger>
+            <TabsTrigger value="digital-rights" data-value="digital-rights">Digital Rights</TabsTrigger>
           </TabsList>
 
           <TabsContent value="home" className="space-y-6">
@@ -710,6 +718,22 @@ export default function IndianConstitutionApp() {
 
           <TabsContent value="banking">
             <BankingRightsNavigator />
+          </TabsContent>
+
+          <TabsContent value="gov-services">
+            <GovernmentServicesIntegration />
+          </TabsContent>
+
+          <TabsContent value="womens-rights">
+            <WomensRightsEmpowerment />
+          </TabsContent>
+
+          <TabsContent value="environment">
+            <EnvironmentalProtectionCenter />
+          </TabsContent>
+
+          <TabsContent value="digital-rights">
+            <DigitalRightsHub />
           </TabsContent>
         </Tabs>
       </main>
