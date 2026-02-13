@@ -21,10 +21,10 @@ import RTIAssistant from '@/components/phase1/RTIAssistant'
 import LegalEmergencyAssistant from '@/components/phase1/LegalEmergencyAssistant'
 import ConsumerProtectionHub from '@/components/phase1/ConsumerProtectionHub'
 import BankingRightsNavigator from '@/components/phase1/BankingRightsNavigator'
-import HealthcareRightsNavigator from '@/components/phase3/HealthcareRightsNavigator'
-import EducationRightsPortal from '@/components/phase3/EducationRightsPortal'
-import HousingRightsCenter from '@/components/phase3/HousingRightsCenter'
-import AgricultureFarmerRights from '@/components/phase3/AgricultureFarmerRights'
+import CitizenJournalismPlatform from '@/components/phase4/CitizenJournalismPlatform'
+import BusinessRightsHub from '@/components/phase4/BusinessRightsHub'
+import NRIForeignRights from '@/components/phase4/NRIForeignRights'
+import ConstitutionalLibrary from '@/components/phase4/ConstitutionalLibrary'
 
 interface Article {
   id: string
@@ -562,7 +562,7 @@ export default function IndianConstitutionApp() {
 
         {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="px-6">
-          <TabsList className="grid w-full grid-cols-17 mb-6">
+          <TabsList className="grid w-full grid-cols-21 mb-6">
             <TabsTrigger value="home" data-value="home">Home</TabsTrigger>
             <TabsTrigger value="browse" data-value="browse">Browse</TabsTrigger>
             <TabsTrigger value="rights" data-value="rights">Rights</TabsTrigger>
@@ -580,6 +580,10 @@ export default function IndianConstitutionApp() {
             <TabsTrigger value="education" data-value="education">Education</TabsTrigger>
             <TabsTrigger value="housing" data-value="housing">Housing</TabsTrigger>
             <TabsTrigger value="agriculture" data-value="agriculture">Agriculture</TabsTrigger>
+            <TabsTrigger value="journalism" data-value="journalism">Journalism</TabsTrigger>
+            <TabsTrigger value="business" data-value="business">Business</TabsTrigger>
+            <TabsTrigger value="nri" data-value="nri">NRI Rights</TabsTrigger>
+            <TabsTrigger value="library" data-value="library">Library</TabsTrigger>
           </TabsList>
 
           <TabsContent value="home" className="space-y-6">
@@ -744,8 +748,20 @@ export default function IndianConstitutionApp() {
             <HousingRightsCenter />
           </TabsContent>
 
-          <TabsContent value="agriculture">
-            <AgricultureFarmerRights />
+          <TabsContent value="journalism">
+            <CitizenJournalismPlatform />
+          </TabsContent>
+
+          <TabsContent value="business">
+            <BusinessRightsHub />
+          </TabsContent>
+
+          <TabsContent value="nri">
+            <NRIForeignRights />
+          </TabsContent>
+
+          <TabsContent value="library">
+            <ConstitutionalLibrary />
           </TabsContent>
         </Tabs>
       </main>
