@@ -1301,35 +1301,35 @@ function getBankingHotlines() {
       name: "Reserve Bank of India",
       phone: "011-2338225",
       category: "regulatory",
-      24/7: false,
+      is247: false,
       description: "Central banking authority and regulator"
     },
     {
       name: "Banking Ombudsman",
       phone: "1800-425-0019",
       category: "dispute",
-      24/7: false,
+      is247: false,
       description: "Banking dispute resolution"
     },
     {
       name: "RBI Customer Service",
       phone: "011-2338225",
       category: "service",
-      24/7: false,
+      is247: false,
       description: "RBI customer assistance"
     },
     {
       name: "Cyber Cell",
       phone: "011-23381789",
       category: "security",
-      24/7: true,
+      is247: true,
       description: "Cybercrime reporting and assistance"
     },
     {
       name: "National Helpline",
       phone: "112",
       category: "emergency",
-      24/7: true,
+      is247: true,
       description: "All emergencies including banking fraud"
     }
   ]

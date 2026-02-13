@@ -21,7 +21,7 @@ interface EmergencyData {
     documents: string[]
   }
   legalResources: {
-    authorities: Array<{ name: string; phone: string; type: string; 24/7?: boolean }>
+    authorities: Array<{ name: string; phone: string; type: string; is247?: boolean }>
     organizations: Array<{ name: string; phone: string; type: string }>
     websites: string[]
   }

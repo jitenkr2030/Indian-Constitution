@@ -1135,35 +1135,35 @@ function getConsumerHotlines() {
       name: "National Consumer Helpline",
       phone: "1800-11-4030",
       category: "general",
-      24/7: false,
+      is247: false,
       description: "Consumer rights and assistance"
     },
     {
       name: "Banking Ombudsman",
       phone: "1800-425-0019",
       category: "banking",
-      24/7: false,
+      is247: false,
       description: "Banking complaint resolution"
     },
     {
       name: "TRAI Consumer Helpline",
       phone: "1800-11-2804",
       category: "telecom",
-      24/7: false,
+      is247: false,
       description: "Telecom consumer assistance"
     },
     {
       name: "IRDA Grievance Cell",
       phone: "011-2338225",
       category: "insurance",
-      24/7: false,
+      is247: false,
       description: "Insurance complaint resolution"
     },
     {
       name: "Cyber Cell",
       phone: "011-23381789",
       category: "digital",
-      24/7: true,
+      is247: true,
       description: "Cybercrime assistance"
     }
   ]

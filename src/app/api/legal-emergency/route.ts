@@ -246,17 +246,17 @@ function getLegalResources(emergencyType: string, location: string) {
   const resources = {
     arrest: {
       hotlines: [
-        { name: "National Legal Services Authority", phone: "1800-11-1320", 24/7: true },
-        { name: "State Legal Services Authority", phone: "011-2338225", 24/7: false },
-        { name: "Police Control Room", phone: "100", 24/7: true }
+        { name: "National Legal Services Authority", phone: "1800-11-1320", is247: true },
+        { name: "State Legal Services Authority", phone: "011-2338225", is247: false },
+        { name: "Police Control Room", phone: "100", is247: true }
       ],
       lawyers: [
-        { name: "Criminal Lawyers Association", phone: "011-23234567", 24/7: true },
-        { name: "Human Rights Lawyers Network", phone: "1800-123-4567", 24/7: true }
+        { name: "Criminal Lawyers Association", phone: "011-23234567", is247: true },
+        { name: "Human Rights Lawyers Network", phone: "1800-123-4567", is247: true }
       ],
       organizations: [
-        { name: "Commonwealth Human Rights Initiative", phone: "011-23456789", 24/7: false },
-        { name: "Legal Aid Cell", phone: "011-34567890", 24/7: false }
+        { name: "Commonwealth Human Rights Initiative", phone: "011-23456789", is247: false },
+        { name: "Legal Aid Cell", phone: "011-34567890", is247: false }
       ],
       websites: [
         "https://nalsa.gov.in",
@@ -266,14 +266,14 @@ function getLegalResources(emergencyType: string, location: string) {
     },
     search: {
       hotlines: [
-        { name: "Police Complaint Helpline", phone: "1090", 24/7: true },
-        { name: "Legal Aid Helpline", phone: "1800-11-1320", 24/7: false }
+        { name: "Police Complaint Helpline", phone: "1090", is247: true },
+        { name: "Legal Aid Helpline", phone: "1800-11-1320", is247: false }
       ],
       lawyers: [
-        { name: "Constitutional Lawyers Forum", phone: "011-23456789", 24/7: false }
+        { name: "Constitutional Lawyers Forum", phone: "011-23456789", is247: false }
       ],
       organizations: [
-        { name: "Civil Liberties Union", phone: "011-34567890", 24/7: false }
+        { name: "Civil Liberties Union", phone: "011-34567890", is247: false }
       ],
       websites: [
         "https://nhrc.nic.in",
@@ -282,14 +282,14 @@ function getLegalResources(emergencyType: string, location: string) {
     },
     detention: {
       hotlines: [
-        { name: "Prison Helpline", phone: "1800-123-4567", 24/7: true },
-        { name: "Legal Services", phone: "1800-11-1320", 24/7: false }
+        { name: "Prison Helpline", phone: "1800-123-4567", is247: true },
+        { name: "Legal Services", phone: "1800-11-1320", is247: false }
       ],
       lawyers: [
-        { name: "Criminal Defense Lawyers", phone: "011-23456789", 24/7: true }
+        { name: "Criminal Defense Lawyers", phone: "011-23456789", is247: true }
       ],
       organizations: [
-        { name: "Prisoners Rights Organization", phone: "011-34567890", 24/7: false }
+        { name: "Prisoners Rights Organization", phone: "011-34567890", is247: false }
       ],
       websites: [
         "https://prisons.gov.in",
@@ -298,16 +298,16 @@ function getLegalResources(emergencyType: string, location: string) {
     },
     harassment: {
       hotlines: [
-        { name: "Women Helpline", phone: "1091", 24/7: true },
-        { name: "Sexual Harassment Helpline", phone: "1800-123-4567", 24/7: true },
-        { name: "NCW Complaint Helpline", phone: "011-23372244", 24/7: false }
+        { name: "Women Helpline", phone: "1091", is247: true },
+        { name: "Sexual Harassment Helpline", phone: "1800-123-4567", is247: true },
+        { name: "NCW Complaint Helpline", phone: "011-23372244", is247: false }
       ],
       lawyers: [
-        { name: "Women Lawyers Association", phone: "011-23456789", 24/7: true }
+        { name: "Women Lawyers Association", phone: "011-23456789", is247: true }
       ],
       organizations: [
-        { name: "National Commission for Women", phone: "011-23372244", 24/7: false },
-        { name: "Women's Rights Organizations", phone: "011-34567890", 24/7: false }
+        { name: "National Commission for Women", phone: "011-23372244", is247: false },
+        { name: "Women's Rights Organizations", phone: "011-34567890", is247: false }
       ],
       websites: [
         "https://ncw.gov.in",
@@ -316,14 +316,14 @@ function getLegalResources(emergencyType: string, location: string) {
     },
     property: {
       hotlines: [
-        { name: "Property Dispute Helpline", phone: "1800-123-4567", 24/7: false },
-        { name: "Legal Aid", phone: "1800-11-1320", 24/7: false }
+        { name: "Property Dispute Helpline", phone: "1800-123-4567", is247: false },
+        { name: "Legal Aid", phone: "1800-11-1320", is247: false }
       ],
       lawyers: [
-        { name: "Property Lawyers Association", phone: "011-23456789", 24/7: false }
+        { name: "Property Lawyers Association", phone: "011-23456789", is247: false }
       ],
       organizations: [
-        { name: "Housing Rights Organization", phone: "011-34567890", 24/7: false }
+        { name: "Housing Rights Organization", phone: "011-34567890", is247: false }
       ],
       websites: [
         "https://housing.gov.in",
@@ -858,17 +858,17 @@ function getLegalEmergencyStatistics() {
     averageResponseTime: 4, // hours
     constitutionalCitations: 15000,
       hotlines: [
-        { name: "National Legal Services Authority", phone: "1800-11-1320", 24/7: true },
-        { name: "State Legal Services Authority", phone: "011-2338225", 24/7: false },
-        { name: "Police Control Room", phone: "100", 24/7: true }
+        { name: "National Legal Services Authority", phone: "1800-11-1320", is247: true },
+        { name: "State Legal Services Authority", phone: "011-2338225", is247: false },
+        { name: "Police Control Room", phone: "100", is247: true }
       ],
       lawyers: [
-        { name: "Criminal Lawyers Association", phone: "011-23234567", 24/7: true },
-        { name: "Human Rights Lawyers Network", phone: "1800-123-4567", 24/7: true }
+        { name: "Criminal Lawyers Association", phone: "011-23234567", is247: true },
+        { name: "Human Rights Lawyers Network", phone: "1800-123-4567", is247: true }
       ],
       organizations: [
-        { name: "Commonwealth Human Rights Initiative", phone: "011-23456789", 24/7: false },
-        { name: "Legal Aid Cell", phone: "011-34567890", 24/7: false }
+        { name: "Commonwealth Human Rights Initiative", phone: "011-23456789", is247: false },
+        { name: "Legal Aid Cell", phone: "011-34567890", is247: false }
       ],
       websites: [
         "https://nalsa.gov.in",
@@ -955,35 +955,35 @@ function getEmergencyHotlines() {
       name: "National Emergency Response",
       phone: "112",
       category: "general",
-      24/7: true,
+      is247: true,
       description: "All emergencies - police, fire, ambulance"
     },
     {
       name: "Women Helpline",
       phone: "1091",
       category: "women",
-      24/7: true,
+      is247: true,
       description: "Women safety and emergency assistance"
     },
     {
       name: "Child Helpline",
       phone: "1098",
       category: "child",
-      24/7: true,
+      is247: true,
       description: "Child protection and emergency assistance"
     },
     {
       name: "Senior Citizen Helpline",
       phone: "1291",
       category: "senior",
-      24/7: true,
+      is247: true,
       description: "Senior citizen assistance and emergency help"
     },
     {
       name: "Legal Services Authority",
       phone: "1800-11-1320",
       category: "legal",
-      24/7: false,
+      is247: false,
       description: "Free legal aid and assistance"
     }
   ]
@@ -997,7 +997,7 @@ function getLegalAidCenters(location: string) {
       phone: "1800-11-1320",
       website: "https://nalsa.gov.in",
       services: ["Legal advice", "Documentation", "Court representation"],
-      24/7: false
+      is247: false
     },
     {
       name: "Delhi State Legal Services Authority",
@@ -1005,7 +1005,7 @@ function getLegalAidCenters(location: string) {
       phone: "011-2338225",
       website: "https://dlsa.delhi.gov.in",
       services: ["Legal advice", "Mediation", "Legal aid"],
-      24/7: false
+      is247: false
     },
     {
       name: "Human Rights Law Network",
@@ -1013,7 +1013,7 @@ function getLegalAidCenters(location: string) {
       phone: "011-2338225",
       website: "https://hrln.org",
       services: ["Human rights", "Emergency response", "Legal aid"],
-      24/7: true
+      is247: true
     }
   ]
 }
