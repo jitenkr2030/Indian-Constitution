@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import { AccessibilityProvider } from '@/contexts/AccessibilityContext'
 
 export const metadata: Metadata = {
   title: 'Indian Constitution App',
@@ -13,7 +14,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <AccessibilityProvider>
+          {children}
+        </AccessibilityProvider>
+      </body>
     </html>
   )
 }
