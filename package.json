@@ -1,0 +1,27 @@
+{
+  "name": "indian-constitution-app",
+  "version": "0.2.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "^16.1.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "@prisma/client": "^6.11.1",
+    "prisma": "^6.11.1",
+    "lucide-react": "^0.525.0",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  },
+  "devDependencies": {
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "^16.1.1"
+  }
+}
